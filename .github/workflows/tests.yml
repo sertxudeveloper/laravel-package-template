@@ -2,25 +2,21 @@ name: Tests
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
   schedule:
     - cron: '0 0 * * *'
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
+  tests:
+    runs-on: ubuntu-latest
+
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: [8.2]
-        laravel: [10]
-        coverage-driver: [pcov]
-        stability: [prefer-lowest, prefer-stable]
+        php: [8.2, 8.3]
+        laravel: [11]
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
 
     steps:
       - name: Checkout code
@@ -30,21 +26,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
-          coverage: ${{ matrix.coverage-driver }}
-
-      - name: Setup problem matchers
-        run: |
-          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo
+          coverage: pcov
 
       - name: Install dependencies
         run: |
-          composer require "illuminate/contracts=^${{ matrix.laravel }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+          composer require "illuminate/contracts=^${{ matrix.laravel }}" --prefer-dist --no-interaction --no-update
+          composer update --prefer-dist --no-interaction --no-progress
 
       - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+        run: composer test -- --coverage-clover=coverage.xml
 
-      - name: Send code coverage report to Codecov.io
-        uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

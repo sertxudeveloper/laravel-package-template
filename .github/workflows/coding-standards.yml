@@ -1,11 +1,7 @@
-name: Coding standards
+name: Coding Standards
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push]
 
 jobs:
-  compile:
-    uses: sertxudeveloper/.github/.github/workflows/php-coding-standards.yml@main
+  lint:
+    uses: sertxudeveloper/.github/.github/workflows/coding-standards.yml@main
