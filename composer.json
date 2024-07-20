@@ -22,7 +22,8 @@
     },
     "autoload": {
         "psr-4": {
-            "{PackageVendor}\\{PackageName}\\": "src"
+            "{PackageVendor}\\{PackageName}\\": "src",
+            "{PackageVendor}\\{PackageName}\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
